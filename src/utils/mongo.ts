@@ -14,4 +14,4 @@ export const mongoConnect = async (): Promise<void> => {
   mongodb = client.db(mongo.db);
 };
 
-export const mongoCollection = (collectionName: string): Map<any, InstanceWrapper> => mongodb.collection(collectionName);
+export const mongoCollection = (collectionName: string) => mongodb.collection(collectionName);

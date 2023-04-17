@@ -1,6 +1,7 @@
-import { Controller, Body, Post, Get } from '@nestjs/common';
+import { Controller, Body, Post, Get, Headers, Res } from '@nestjs/common';
 import AuthService from './auth.service';
 import { CredentialParams } from './params.dto';
+import Helper from '../utils/helper';
 
 
 @Controller('auth')
@@ -14,11 +15,19 @@ export class AuthController {
   };
 
   @Post('/register')
-  async signUp(@Body() query: CredentialParams) {
+  async signUp(@Body() body: CredentialParams, @Headers() headers: any, @Res({ passthrough: true }) res): Promise<SignResponse> {
+    const { email, password } = body;
+    const userAgent: string = headers.userAgent;
+
+    const device = Helper.getDevice(userAgent);
+    const { refreshToken, accessToken }: Tokens = await this.authService.signUp(email, password, device);
+
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, maximumAge: 60 * 1000});
+    return { accessToken };
   };
 
   @Post('/login')
-  async signIn(@Body() query: CredentialParams) {
+  async signIn(@Body() body: CredentialParams) {
   }
 
   @Get('/logout')
