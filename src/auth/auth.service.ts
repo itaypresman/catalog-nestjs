@@ -27,7 +27,7 @@ export class AuthService {
 
       password = await argon2.hash(password);
       const tokens: Tokens = this.generateTokens(email);
-      const tokenObj: TokenMongo = { token: tokens.refreshToken, createTime: new Date(), device, isActive: true };
+      const tokenObj: TokenMongo = { ...tokens, createTime: new Date(), device, isActive: true };
 
       await mongoCollection('users').insertOne({ email, password, registrationDate: new Date(), tokens: [tokenObj] });
 
@@ -42,15 +42,25 @@ export class AuthService {
      }
 
      const tokens: Tokens = this.generateTokens(email);
-     await this.addUserToken(user._id, tokens.refreshToken, device);
+     await this.addUserToken(user._id, tokens, device);
 
      return tokens;
    }
 
-   addUserToken(userId: ObjectId, refreshToken: string, device: string): Promise<void> {
-     const tokenObj:TokenMongo = { token: refreshToken, createTime: new Date(), device, isActive: true };
+   private addUserToken(userId: ObjectId, tokens: Tokens, device: string): Promise<void> {
+     const tokenObj:TokenMongo = { ...tokens, createTime: new Date(), device, isActive: true };
      return mongoCollection('users').updateOne({ _id: userId },  { $push: { tokens: tokenObj } });
    }
+
+   signOut(userId: ObjectId, refreshToken: string) {
+    return mongoCollection('users').updateOne({ _id: userId, tokens: { $elemMatch: { refreshToken } } },  { $set: { 'tokens.$.isActive': false } });
+  }
+
+  async updateToken(userId: ObjectId, email: string, refreshToken: string): Promise<string> {
+    const accessToken: string = jwt.sign({ email }, jwtSecret.access, { expiresIn: '1h' });
+    await mongoCollection('users').updateOne({ _id: userId, tokens: { $elemMatch: { refreshToken } } },  { $set: { 'tokens.$.accessToken': accessToken } });
+    return accessToken;
+  }
 }
 
 

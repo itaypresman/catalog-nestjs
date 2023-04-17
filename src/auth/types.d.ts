@@ -4,7 +4,8 @@ type Tokens = {
 };
 
 type TokenMongo = {
-  token: string;
+  refreshToken: string;
+  accessToken: string;
   createTime: Date;
   device: string;
   isActive: boolean;

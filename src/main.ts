@@ -9,8 +9,8 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   await mongoConnect();
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalPipes(cookieParser());
   await app.listen(port);
 }
 

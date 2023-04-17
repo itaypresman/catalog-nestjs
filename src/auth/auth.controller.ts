@@ -20,10 +20,10 @@ export class AuthController {
     const { email, password }: CredentialParams = body;
     const userAgent: string = headers.userAgent;
 
-    const device = Helper.getDevice(userAgent);
+    const device: string = Helper.getDevice(userAgent);
     const { refreshToken, accessToken }: Tokens = await this.authService.signUp(email, password, device);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, maximumAge: 60 * 1000});
+    res.cookie('refreshToken', refreshToken, { httpOnly: true });
     return { accessToken };
   };
 
@@ -35,13 +35,25 @@ export class AuthController {
     const device: string = Helper.getDevice(userAgent);
     const { refreshToken, accessToken }: Tokens = await this.authService.signIn(email, password, device);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, maximumAge: 60 * 1000});
+    res.cookie('refreshToken', refreshToken, { httpOnly: true });
     return { accessToken };
   }
 
   @UseGuards(AuthGuard)
   @Get('/logout')
-  async signOut(@Request() req): Promise<LogOutResponse> {
+  async signOut(@Request() req, @Res({ passthrough: true }) res): Promise<LogOutResponse> {
+    const refreshToken: string =  req.cookies.refreshToken;
+    await this.authService.signOut(req.user.id, refreshToken);
+    res.clearCookie('refreshToken');
     return { status: true };
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/token/refresh')
+  async refreshToken(@Request() req): Promise<SignResponse> {
+    const refreshToken: string =  req.cookies.refreshToken;
+    const { id, email } = req.user
+    const accessToken: string = await this.authService.updateToken(id, email, refreshToken);
+    return { accessToken };
   }
 }
