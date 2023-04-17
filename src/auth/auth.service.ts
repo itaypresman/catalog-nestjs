@@ -4,6 +4,7 @@ import * as argon2 from 'argon2';
 import { jwtSecret } from '../utils/config';
 import * as jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
+import UserDto from '../dto/user.dto';
 
 
 @Injectable()
@@ -29,7 +30,7 @@ export class AuthService {
       const tokens: Tokens = this.generateTokens(email);
       const tokenObj: TokenMongo = { ...tokens, createTime: new Date(), device, isActive: true };
 
-      await mongoCollection('users').insertOne({ email, password, registrationDate: new Date(), tokens: [tokenObj] });
+      await mongoCollection('users').insertOne({ email, password, registrationDate: new Date(), tokens: [tokenObj], catalogs: [] });
 
       return tokens;
    }
@@ -60,6 +61,11 @@ export class AuthService {
     const accessToken: string = jwt.sign({ email }, jwtSecret.access, { expiresIn: '1h' });
     await mongoCollection('users').updateOne({ _id: userId, tokens: { $elemMatch: { refreshToken } } },  { $set: { 'tokens.$.accessToken': accessToken } });
     return accessToken;
+  }
+
+  async getUserByRefreshToken(refreshToken: string): Promise<UserDto | null> {
+    const user = await mongoCollection('users').findOne({  tokens: { $elemMatch: { refreshToken } } });
+    return user ? new UserDto(user) : null;
   }
 }
 

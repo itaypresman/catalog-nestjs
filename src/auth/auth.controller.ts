@@ -1,8 +1,9 @@
-import { Controller, Body, Post, Get, Headers, Res, UseGuards, Request } from '@nestjs/common';
+import { Controller, Body, Post, Get, Headers, Res, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import AuthService from './auth.service';
 import { CredentialParams } from './params.dto';
 import Helper from '../utils/helper';
 import { AuthGuard } from '../AuthGuard';
+import UserDto from '../dto/user.dto';
 
 
 @Controller('auth')
@@ -48,12 +49,16 @@ export class AuthController {
     return { status: true };
   }
 
-  @UseGuards(AuthGuard)
   @Get('/token/refresh')
   async refreshToken(@Request() req): Promise<SignResponse> {
     const refreshToken: string =  req.cookies.refreshToken;
-    const { id, email } = req.user
-    const accessToken: string = await this.authService.updateToken(id, email, refreshToken);
+    const user: UserDto | null = await this.authService.getUserByRefreshToken(refreshToken);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const accessToken: string = await this.authService.updateToken(user.id, user.email, refreshToken);
     return { accessToken };
   }
 }

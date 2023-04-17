@@ -1,11 +1,21 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsString, IsBoolean } from 'class-validator';
 
 
-export class CredentialParams {
-  @IsEmail()
-  email: string;
+export class CreateCatalogParams {
+  @IsString()
+  name: string;
 
   @IsString()
-  @MinLength(6)
-  password: string;
+  vertical: string;
+
+  @IsBoolean()
+  isPrimary: boolean;
+}
+
+export class SetPrimaryCatalogParams {
+  @IsString()
+  catalogId: string;
+
+  @IsBoolean()
+  isPrimary: boolean;
 }
