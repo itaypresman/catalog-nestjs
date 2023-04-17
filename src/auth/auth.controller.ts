@@ -27,7 +27,15 @@ export class AuthController {
   };
 
   @Post('/login')
-  async signIn(@Body() body: CredentialParams) {
+  async signIn(@Body() body: CredentialParams, @Headers() headers: any, @Res({ passthrough: true }) res): Promise<SignResponse> {
+    const { email, password } = body;
+    const userAgent: string = headers.userAgent;
+
+    const device = Helper.getDevice(userAgent);
+    const { refreshToken, accessToken }: Tokens = await this.authService.signIn(email, password, device);
+
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, maximumAge: 60 * 1000});
+    return { accessToken };
   }
 
   @Get('/logout')
