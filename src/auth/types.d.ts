@@ -13,3 +13,8 @@ type TokenMongo = {
 type SignResponse = {
   accessToken: string;
 }
+
+type LogOutResponse = {
+  status: boolean;
+}
+

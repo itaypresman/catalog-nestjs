@@ -49,7 +49,7 @@ export class AuthService {
 
    addUserToken(userId: ObjectId, refreshToken: string, device: string): Promise<void> {
      const tokenObj:TokenMongo = { token: refreshToken, createTime: new Date(), device, isActive: true };
-     return mongoCollection('users').updateOne({ _id: userId },  { $pull: { tokens: tokenObj } });
+     return mongoCollection('users').updateOne({ _id: userId },  { $push: { tokens: tokenObj } });
    }
 }
 
