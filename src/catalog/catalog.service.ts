@@ -68,6 +68,12 @@ export class CatalogService {
 
     return catalogs.map(row => new CatalogDto(row));
   };
+
+  deleteCatalogs(userId: ObjectId, catalogIds: string[]): Promise<any> {
+    const catalogObjIds: ObjectId[] = catalogIds.map(id => new ObjectId(id))
+    return mongoCollection('users').updateOne({ _id: userId },   { $pull: { catalogs: { _id: { $in: catalogObjIds } } } }
+    );
+  }
 }
 
 

@@ -26,3 +26,6 @@
 <code>npm run-script build</code>
 <code>npm run-script start</code>
 </pre>
+
+<h2>Example of requests</h2>
+<a href="https://app.getpostman.com/join-team?invite_code=1170ecffd1aae2d17a6f2f806684f897&target_code=4a606f144dcde1ead1975dfc460418d0">Join postman workspace</a>

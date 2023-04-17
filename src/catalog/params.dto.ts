@@ -1,11 +1,11 @@
-import { IsString, IsBoolean } from 'class-validator';
+import { IsString, IsBoolean, IsIn, IsArray } from 'class-validator';
 
 
 export class CreateCatalogParams {
   @IsString()
   name: string;
 
-  @IsString()
+  @IsIn(['fashion', 'home', 'general'])
   vertical: string;
 
   @IsBoolean()
@@ -18,4 +18,9 @@ export class SetPrimaryCatalogParams {
 
   @IsBoolean()
   isPrimary: boolean;
+}
+
+export class DeleteCatalogsParams {
+  @IsArray()
+  catalogIds: string[];
 }

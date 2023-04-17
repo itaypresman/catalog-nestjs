@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Request, UseGuards, Put, Delete } from '@nestjs/common';
 import CatalogService from './catalog.service';
 import { AuthGuard } from '../AuthGuard';
-import { CreateCatalogParams, SetPrimaryCatalogParams } from './params.dto';
+import { CreateCatalogParams, DeleteCatalogsParams, SetPrimaryCatalogParams } from './params.dto';
 import CatalogDto from '../dto/catalog.dto';
 
 
@@ -34,7 +34,9 @@ export class CatalogController {
 
   @UseGuards(AuthGuard)
   @Delete('/delete')
-  async delete(): Promise<string> {
-    return 'Catalog';
+  async delete(@Request() req, @Body() body: DeleteCatalogsParams): Promise<DefaultResponse> {
+    const { catalogIds }: DeleteCatalogsParams = body;
+    await this.catalogService.deleteCatalogs(req.user.id, catalogIds);
+    return { status: true };
   };
 }
