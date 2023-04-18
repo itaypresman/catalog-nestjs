@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { port } from './utils/config';
 import { mongoConnect } from './utils/mongo';
 import * as cookieParser from 'cookie-parser';
+import { corsOrigin } from './utils/config';
 
 
 async function bootstrap() {
@@ -12,8 +13,7 @@ async function bootstrap() {
   app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
-    allowedHeaders: '*',
-    origin: '*',
+    origin: corsOrigin,
     credentials: true,
   });
 

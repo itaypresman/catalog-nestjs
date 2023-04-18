@@ -23,3 +23,5 @@ export const jwtSecret: JwtSecret = {
   refresh: env.JWT_REFRESH_TOKEN,
   access: env.JWT_ACCESS_TOKEN,
 };
+
+export const corsOrigin: string = env.CORS_ORIGIN;
