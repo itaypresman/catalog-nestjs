@@ -53,7 +53,7 @@ export class AuthController {
   }
 
   @Get('/token/refresh')
-  async refreshToken(@Request() req): Promise<SignResponse> {
+  async refreshToken(@Request() req, @Res({ passthrough: true }) res): Promise<SignResponse> {
     const refreshToken: string =  req.cookies.refreshToken;
     const user: UserDto | null = await this.authService.getUserByRefreshToken(refreshToken);
 
@@ -62,6 +62,7 @@ export class AuthController {
     }
 
     const accessToken: string = await this.authService.updateToken(user.id, user.email, refreshToken);
+    res.cookie('accessToken', accessToken, { maxAge: 3600000 }); //1 hour
     return { accessToken };
   }
 }
