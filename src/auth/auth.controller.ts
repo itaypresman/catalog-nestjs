@@ -24,8 +24,7 @@ export class AuthController {
     const device: string = Helper.getDevice(userAgent);
     const { refreshToken, accessToken }: Tokens = await this.authService.signUp(email, password, device);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
-    res.cookie('accessToken', accessToken, { maxAge: 3600000 }); //1 hour
+    res.cookie('refreshToken', refreshToken, { HttpOnly: true });
     return { accessToken };
   };
 
@@ -37,8 +36,7 @@ export class AuthController {
     const device: string = Helper.getDevice(userAgent);
     const { refreshToken, accessToken }: Tokens = await this.authService.signIn(email, password, device);
 
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
-    res.cookie('accessToken', accessToken, { maxAge: 3600000 }); //1 hour
+    res.cookie('refreshToken', refreshToken, { HttpOnly: true });
     return { accessToken };
   }
 
@@ -48,7 +46,6 @@ export class AuthController {
     const refreshToken: string =  req.cookies.refreshToken;
     await this.authService.signOut(req.user.id, refreshToken);
     res.clearCookie('refreshToken');
-    res.clearCookie('accessToken');
     return { status: true };
   }
 
@@ -62,7 +59,6 @@ export class AuthController {
     }
 
     const accessToken: string = await this.authService.updateToken(user.id, user.email, refreshToken);
-    res.cookie('accessToken', accessToken, { maxAge: 3600000 }); //1 hour
     return { accessToken };
   }
 }
