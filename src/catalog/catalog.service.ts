@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { mongoCollection } from '../utils/mongo';
 import { ObjectId } from 'mongodb';
 import CatalogDto from '../dto/catalog.dto';
+import { NotFoundError } from 'rxjs';
 
 
 @Injectable()
@@ -14,8 +15,8 @@ export class CatalogService {
     }
   };
 
-  private async isCatalogExists(userId: ObjectId, name: string): Promise<boolean> {
-    const user = await mongoCollection('users').findOne({ _id: userId, catalogs: { $elemMatch: { name } } });
+  private async isCatalogExists(userId: ObjectId, id: string): Promise<boolean> {
+    const user = await mongoCollection('users').findOne({ _id: userId, catalogs: { $elemMatch: { _id: new ObjectId(id) } } });
     return !!user;
   };
 
@@ -24,8 +25,13 @@ export class CatalogService {
       return;
     }
 
-    const { catalogs } = await mongoCollection('users').findOne({ _id: userId, catalogs: { $elemMatch: { isPrimary: true } } }, { catalogs: 1 });
+    const user = await mongoCollection('users').findOne({ _id: userId, catalogs: { $elemMatch: { isPrimary: true } } }, { catalogs: 1 });
 
+    if (!user) {
+      return;
+    }
+
+    const catalogs: mongoCatalog[] = user.catalogs;
     for (const catalog of catalogs) {
       if ((catalog.vertical !== vertical) && catalog.isPrimary) {
         throw new BadRequestException('This catalog can not be primary');
@@ -33,9 +39,14 @@ export class CatalogService {
     }
   };
 
-  private async getCatalog(userId: ObjectId, catalogId: string): Promise<CatalogDto | null> {
-    const { catalogs } = await mongoCollection('users').findOne({ _id: userId, catalogs: { $elemMatch: { isPrimary: true } } }, { catalogs: 1 });
+  private async getCatalog(userId: ObjectId, catalogId: string): Promise<mongoCatalog | null> {
+    const user = await mongoCollection('users').findOne({ _id: userId }, { catalogs: 1 });
 
+    if (!user) {
+      throw new NotFoundError('User don\'t have this catalog');
+    }
+
+    const catalogs: mongoCatalog[] = user.catalogs;
     for (const catalog of catalogs) {
       if (catalog._id.toString() === catalogId) {
         return catalog;
@@ -54,8 +65,8 @@ export class CatalogService {
   };
 
   async changePrimary(userId: ObjectId, catalogId: string, isPrimary: boolean): Promise<void> {
-    if (await this.isCatalogExists(userId, catalogId)) {
-      throw new BadRequestException(`Catalog does not exist`);
+    if (!(await this.isCatalogExists(userId, catalogId))) {
+      throw new NotFoundError(`Catalog does not exist`);
     }
 
     const { vertical }: { vertical: string } = await this.getCatalog(userId, catalogId);
