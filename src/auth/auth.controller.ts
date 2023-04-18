@@ -25,6 +25,7 @@ export class AuthController {
     const { refreshToken, accessToken }: Tokens = await this.authService.signUp(email, password, device);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('accessToken', accessToken, { maxAge: 3600000 }); //1 hour
     return { accessToken };
   };
 
@@ -37,6 +38,7 @@ export class AuthController {
     const { refreshToken, accessToken }: Tokens = await this.authService.signIn(email, password, device);
 
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('accessToken', accessToken, { maxAge: 3600000 }); //1 hour
     return { accessToken };
   }
 
@@ -46,6 +48,7 @@ export class AuthController {
     const refreshToken: string =  req.cookies.refreshToken;
     await this.authService.signOut(req.user.id, refreshToken);
     res.clearCookie('refreshToken');
+    res.clearCookie('accessToken');
     return { status: true };
   }
 
