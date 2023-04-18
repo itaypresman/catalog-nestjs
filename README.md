@@ -14,17 +14,10 @@
   <li>Fill in the appropriate values for the fields in the <code>.env</code> file.</li>
 </ol>
 
-<h2>Running the Project Dev</h2>
+<h2>Running the Project</h2>
 <p>Once the installation and configuration are complete, you can run the project using the following command:</p>
 <pre>
-<code>npm run-script start:dev</code>
-</pre>
-
-<h2>Running the Project Prod</h2>
-<p>Once the installation and configuration are complete, you can run the project using the following command:</p>
-<pre>
-<code>npm run-script build</code>
-<code>npm run-script start</code>
+<code>nest start</code>
 </pre>
 
 <h2>Example of requests</h2>
